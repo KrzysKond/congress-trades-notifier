@@ -1,14 +1,10 @@
 resource "aws_s3_bucket" "main" {
-  bucket = "cg-fillings-${random_id.bucket_suffix.hex}"
+  bucket = "cg-fillings"
 
   tags = {
     Name        = "cg-fillings"
     Environment = "prod"
   }
-}
-
-resource "random_id" "bucket_suffix" {
-  byte_length = 4
 }
 
 resource "aws_s3_bucket_versioning" "main" {
@@ -86,7 +82,7 @@ resource "aws_s3_bucket_policy" "main" {
 
 # Access logging bucket
 resource "aws_s3_bucket" "logs" {
-  bucket = "cg-fillings-logs-${random_id.bucket_suffix.hex}"
+  bucket = "cg-fillings-logs"
 
   tags = {
     Name        = "cg-fillings-logs"
