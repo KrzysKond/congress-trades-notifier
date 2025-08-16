@@ -69,12 +69,12 @@ resource "aws_s3_bucket_policy" "main" {
         }
       },
       {
-        Sid       = "AllowLambdaRole"
-        Effect    = "Allow"
+        Sid    = "AllowLambdaRole"
+        Effect = "Allow"
         Principal = {
           AWS = aws_iam_role.lambda_exec.arn
         }
-        Action   = ["s3:GetObject", "s3:PutObject", "s3:ListBucket"]
+        Action = ["s3:GetObject", "s3:PutObject", "s3:ListBucket"]
         Resource = [
           aws_s3_bucket.main.arn,
           "${aws_s3_bucket.main.arn}/*"
