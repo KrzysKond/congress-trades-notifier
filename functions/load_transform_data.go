@@ -12,8 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
@@ -34,45 +32,39 @@ type FinancialDisclosure struct {
 	Members []Filing `xml:"Member"`
 }
 
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func ZipExtractor() string {
 	const url = "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025FD.zip"
 	const zipPath = "./data/2025FD.zip"
-	const XMLPath = "./data/2025FD.xml"
+	const XMLPath = "./data/FD.xml"
 
 	// Create /data folder
-	check(os.MkdirAll("./data", 0644))
+	Check(os.MkdirAll("./data", 0644))
 
 	// Download ZIP
 	resp, err := http.Get(url)
-	check(err)
+	Check(err)
 	defer resp.Body.Close()
 
 	out, err := os.Create(zipPath)
-	check(err)
+	Check(err)
 	_, err = io.Copy(out, resp.Body)
-	check(err)
+	Check(err)
 	out.Close()
 
 	// Open ZIP
 	r, err := zip.OpenReader(zipPath)
-	check(err)
+	Check(err)
 	defer r.Close()
 
 	// Extract only XML
 	for _, f := range r.File {
 		if strings.HasSuffix(f.Name, ".xml") {
 			rc, err := f.Open()
-			check(err)
+			Check(err)
 			outFile, err := os.Create(XMLPath)
-			check(err)
+			Check(err)
 			_, err = io.Copy(outFile, rc)
-			check(err)
+			Check(err)
 			rc.Close()
 			outFile.Close()
 			break
@@ -87,13 +79,13 @@ func ZipExtractor() string {
 
 func ProcessXML(xmlPath string) []string {
 	file, err := os.Open(xmlPath)
-	check(err)
+	Check(err)
 	defer file.Close()
 
 	// Decode XML
 	var fd FinancialDisclosure
 	err = xml.NewDecoder(file).Decode(&fd)
-	check(err)
+	Check(err)
 	today := time.Now()
 	yesterday := today.AddDate(0, 0, -1)
 
@@ -103,7 +95,7 @@ func ProcessXML(xmlPath string) []string {
 	for _, f := range fd.Members {
 		if f.FilingType == "P" {
 			t, err := time.Parse("1/2/2006", f.FilingDate)
-			check(err)
+			Check(err)
 			if t.Year() == today.Year() && t.YearDay() == today.YearDay() ||
 				t.Year() == yesterday.Year() && t.YearDay() == yesterday.YearDay() {
 				f.FilingDate = t.Format("2/1/2006") // DD/MM/YYYY
@@ -118,11 +110,11 @@ func ProcessXML(xmlPath string) []string {
 
 	// Marshal filtered XML
 	output, err := xml.MarshalIndent(fd, "", "  ")
-	check(err)
+	Check(err)
 
 	// Write back to the same file
 	err = os.WriteFile(xmlPath, append([]byte(xml.Header), output...), 0644)
-	check(err)
+	Check(err)
 	return docIDs
 }
 
@@ -130,36 +122,37 @@ func DownloadPDF(id string) string {
 	url := fmt.Sprintf("https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/%s.pdf", id)
 	PDFPath := fmt.Sprintf("./data/%d.pdf", id)
 	resp, err := http.Get(url)
-	check(err)
+	Check(err)
 	defer resp.Body.Close()
 
 	out, err := os.Create(PDFPath)
-	check(err)
+	Check(err)
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
-	check(err)
+	Check(err)
 
 	return PDFPath
 }
 
-func UploadPDFtoS3(filePath string, bucketName string) {
-	cfg, err := config.LoadDefaultConfig(context.Background())
-	check(err)
-
-	client := s3.NewFromConfig(cfg)
-
+func UploadPDFtoS3(client S3API, filePath string, bucketName string) error {
 	file, err := os.Open(filePath)
-	check(err)
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
 	key := filepath.Base(filePath)
 
 	_, err = client.PutObject(context.Background(), &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(key),
+		Bucket: &bucketName,
+		Key:    &key,
 		Body:   file,
 		ACL:    types.ObjectCannedACLPrivate,
 	})
-	check(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
