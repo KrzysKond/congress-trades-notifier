@@ -21,7 +21,7 @@ func handler(ctx context.Context) {
 	docIDs := functions.ProcessXML(xmlPath)
 	for _, id := range docIDs {
 		pdfPath := functions.DownloadPDF(id)
-		functions.UploadPDFtoS3(s3Client, pdfPath, "congress-filings")
+		functions.UploadPDFtoS3(s3Client, pdfPath, "cg-fillings")
 	}
 
 	recipients, err := functions.FetchRecipients(s3Client, "emails", "recipients.txt")
