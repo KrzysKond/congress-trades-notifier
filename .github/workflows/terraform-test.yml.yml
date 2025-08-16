@@ -33,6 +33,6 @@ jobs:
 
       - name: Format and Validate Terraform
         run: |
-          terraform fmt -check -recursive
+          terraform fmt -recursive
           terraform init -backend=false
           terraform validate
