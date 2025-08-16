@@ -1,0 +1,75 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TF_VERSION: "1.12.2"
+  AWS_REGION: "eu-central-1"
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24.5'
+
+    - name: Build and package Go Lambda
+      run: |
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap main.go
+        mkdir -p build
+        zip build/main.zip bootstrap
+        rm bootstrap
+
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive
+
+    - name: Terraform Init
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+          -backend-config="key=${{ secrets.TF_STATE_KEY }}" \
+          -backend-config="region=${{ env.AWS_REGION }}"
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: |
+        terraform plan \
+          -var="region=${{ env.AWS_REGION }}" \
+          -out=tfplan
+      env:
+        TF_VAR_ses_email: ${{ secrets.SES_EMAIL }}
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve tfplan
