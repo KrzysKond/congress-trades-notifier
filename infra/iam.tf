@@ -3,7 +3,7 @@ resource "aws_iam_role" "lambda_exec" {
   name = "lambda-exec-role"
 
   assume_role_policy = jsonencode({
-    Version = "2025-08-16"
+    Version = "2012-10-17"
     Statement = [{
       Action    = "sts:AssumeRole"
       Effect    = "Allow"
@@ -22,12 +22,12 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 resource "aws_iam_role_policy" "lambda_custom" {
   role = aws_iam_role.lambda_exec.id
   policy = jsonencode({
-    Version = "2025-08-16"
+    Version = "2012-10-17"
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["rds:*"]
-        Resource = "*"
+        Action   = ["s3:GetObject", "s3:PutObject"]
+        Resource = "${aws_s3_bucket.main.arn}/*"
       },
       {
         Effect   = "Allow"
