@@ -21,7 +21,7 @@ resource "aws_lambda_function" "main_lambda" {
   function_name = "main-lambda"
   role          = aws_iam_role.lambda_exec.arn
   runtime       = "provided.al2023"
-  handler       = "lambda_function.lambda_handler"
+  handler       = "bootstrap"
   filename      = "../build/main.zip"
 
   timeout                        = 900
