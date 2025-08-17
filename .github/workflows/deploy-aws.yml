@@ -64,22 +64,6 @@ jobs:
     - name: Terraform Validate
       run: terraform -chdir=infra validate
 
-    - name: Terraform Import Existing Resources
-      run: |
-        terraform import -allow-missing aws_vpc.main vpc-xxxx
-        terraform import -allow-missing aws_subnet.public[0] subnet-xxxx
-        terraform import -allow-missing aws_subnet.private[0] subnet-xxxx
-        terraform import -allow-missing aws_internet_gateway.gw igw-xxxx
-        terraform import -allow-missing aws_eip.nat[0] eipalloc-xxxx
-        terraform import -allow-missing aws_nat_gateway.nat[0] nat-xxxx
-        terraform import -allow-missing aws_route_table.public rtb-xxxx
-        terraform import -allow-missing aws_route_table.private[0] rtb-xxxx
-        terraform import -allow-missing aws_route_table_association.public_assoc[0] rtbassoc-xxxx
-        terraform import -allow-missing aws_route_table_association.private_assoc[0] rtbassoc-xxxx
-        terraform import -allow-missing aws_s3_bucket.main cg-fillings
-        terraform import -allow-missing aws_s3_bucket.logs cg-fillings-logs
-
-
     - name: Terraform Plan
       run: |
         terraform -chdir=infra plan \
