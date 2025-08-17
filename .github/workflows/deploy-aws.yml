@@ -10,7 +10,7 @@ on:
 env:
   TF_VERSION: "1.12.2"
   TF_STATE: terraform.tfstate
-  TF_STATE_BUCKET: cg-fillings
+  TF_STATE_BUCKET: cg-tf-state-2025
   AWS_REGION: "eu-north-1"
 
 jobs:

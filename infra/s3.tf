@@ -1,5 +1,9 @@
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
+
 resource "aws_s3_bucket" "main" {
-  bucket = "cg-fillings"
+  bucket = "cg-fillings-${random_id.bucket_suffix.hex}"
 
   tags = {
     Name        = "cg-fillings"
@@ -33,7 +37,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
   }
 }
 
-# VPC Endpoint for S3 (keeps traffic within AWS network)
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = aws_vpc.main.id
   service_name      = "com.amazonaws.${var.region}.s3"
@@ -41,11 +44,10 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = aws_route_table.private[*].id
 
   tags = {
-    Name = "s3-vpc-endpoint"
+    Name = "s3-vpc-endpoint-${random_id.bucket_suffix.hex}"
   }
 }
 
-# Bucket policy to restrict access to VPC only
 resource "aws_s3_bucket_policy" "main" {
   bucket = aws_s3_bucket.main.id
 
@@ -80,9 +82,8 @@ resource "aws_s3_bucket_policy" "main" {
   })
 }
 
-# Access logging bucket
 resource "aws_s3_bucket" "logs" {
-  bucket = "cg-fillings-logs"
+  bucket = "cg-fillings-logs-${random_id.bucket_suffix.hex}"
 
   tags = {
     Name        = "cg-fillings-logs"
@@ -92,7 +93,6 @@ resource "aws_s3_bucket" "logs" {
 
 resource "aws_s3_bucket_logging" "main" {
   bucket = aws_s3_bucket.main.id
-
   target_bucket = aws_s3_bucket.logs.id
   target_prefix = "access-logs/"
 }
