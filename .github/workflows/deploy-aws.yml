@@ -51,8 +51,8 @@ jobs:
         zip build/main.zip bootstrap
         rm bootstrap
 
-    - name: Terraform Format Check
-      run: terraform fmt -check -recursive
+    - name: Terraform Format
+      run: terraform fmt -recursive
 
     - name: Terraform Init
       run: |

@@ -92,7 +92,7 @@ resource "aws_s3_bucket" "logs" {
 }
 
 resource "aws_s3_bucket_logging" "main" {
-  bucket = aws_s3_bucket.main.id
+  bucket        = aws_s3_bucket.main.id
   target_bucket = aws_s3_bucket.logs.id
   target_prefix = "access-logs/"
 }
