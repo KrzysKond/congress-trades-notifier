@@ -1,4 +1,4 @@
-package congress
+package main
 
 import (
 	"context"
