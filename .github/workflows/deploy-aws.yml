@@ -47,6 +47,7 @@ jobs:
     - name: Build and package Go Lambda
       run: |
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap main.go
+        chmod +x bootstrap
         mkdir -p build
         zip build/main.zip bootstrap
         rm bootstrap
