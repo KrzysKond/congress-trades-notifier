@@ -38,7 +38,7 @@ func ZipExtractor() string {
 	const XMLPath = "/tmp/data/2025FD.xml"
 
 	// Create /data folder
-	Check(os.Mkdir("/tmp/data", 0755))
+	Check(os.MkdirAll("/tmp/data", 0755))
 
 	// Download ZIP
 	resp, err := http.Get(url)
