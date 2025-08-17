@@ -24,7 +24,6 @@ resource "aws_lambda_function" "main_lambda" {
   handler       = "lambda_function.lambda_handler"
   filename      = "../build/main.zip"
 
-  reserved_concurrent_executions = 5
   timeout                        = 900
 
   tracing_config {
