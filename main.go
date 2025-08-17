@@ -19,12 +19,13 @@ func handler(ctx context.Context) {
 
 	xmlPath := functions.ZipExtractor()
 	docIDs := functions.ProcessXML(xmlPath)
+	bucketName := functions.GetBucketName(s3Client, "cg-fillings")
 	for _, id := range docIDs {
 		pdfPath := functions.DownloadPDF(id)
-		functions.UploadPDFtoS3(s3Client, pdfPath, "cg-fillings")
+		functions.UploadPDFtoS3(s3Client, pdfPath, bucketName)
 	}
 
-	recipients, err := functions.FetchRecipients(s3Client, "emails", "recipients.txt")
+	recipients, err := functions.FetchRecipients(s3Client, bucketName, "recipients.txt")
 	functions.Check(err)
 	functions.SendEmails(sesClient, recipients)
 }

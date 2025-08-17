@@ -17,7 +17,7 @@ import (
 )
 
 func FetchRecipients(client S3API, bucketName, key string) ([]string, error) {
-	resp, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
+	resp, err := client.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: &bucketName,
 		Key:    &key,
 	})

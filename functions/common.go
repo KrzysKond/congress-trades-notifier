@@ -2,6 +2,8 @@ package functions
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/ses"
@@ -20,4 +22,17 @@ func Check(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func GetBucketName(s3Client *s3.Client, prefix string) string {
+	resp, err := s3Client.ListBuckets(context.Background(), &s3.ListBucketsInput{})
+	Check(err)
+
+	for _, b := range resp.Buckets {
+		name := *b.Name
+		if strings.HasPrefix(name, prefix) && !strings.Contains(name, "logs") {
+			return name
+		}
+	}
+	panic(fmt.Sprintf("bucket not found with prefix %s", prefix))
 }
