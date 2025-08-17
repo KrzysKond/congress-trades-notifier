@@ -137,9 +137,7 @@ func DownloadPDF(id string) string {
 
 func UploadPDFtoS3(client S3API, filePath string, bucketName string) error {
 	file, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
+	Check(err)
 	defer file.Close()
 
 	key := filepath.Base(filePath)
@@ -150,9 +148,7 @@ func UploadPDFtoS3(client S3API, filePath string, bucketName string) error {
 		Body:   file,
 		ACL:    types.ObjectCannedACLPrivate,
 	})
-	if err != nil {
-		return err
-	}
+	Check(err)
 
 	return nil
 }
