@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"os"
 	"testing"
 
 	functions "github.com/KrzysKond/congress-trades-notifier/functions"
@@ -58,7 +59,14 @@ func TestFetchRecipients(t *testing.T) {
 func TestSendEmails(t *testing.T) {
 	mock := &mockSESClient{}
 	recipients := []string{"user1@example.com", "user2@example.com"}
-
+	
+	pdfPaths := []string{"/tmp/lambda/file1.pdf", "/tmp/lambda/file2.pdf"}
+	for _, path := range pdfPaths {
+		content := []byte("%PDF-1.4\n% Simple PDF for testing\n")
+		if err := os.WriteFile(path, content, 0644); err != nil {
+			t.Fatalf("Failed to write PDF %s: %v", path, err)
+		}
+	}	
 	err := functions.SendEmails(mock, recipients)
 	if err != nil {
 		t.Fatalf("SendEmails failed: %v", err)
