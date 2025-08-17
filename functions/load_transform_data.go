@@ -34,11 +34,11 @@ type FinancialDisclosure struct {
 
 func ZipExtractor() string {
 	const url = "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025FD.zip"
-	const zipPath = "./data/2025FD.zip"
-	const XMLPath = "./data/2025FD.xml"
+	const zipPath = "/tmp/data/2025FD.zip"
+	const XMLPath = "/tmp/data/2025FD.xml"
 
 	// Create /data folder
-	Check(os.MkdirAll("./data", 0755))
+	Check(os.Mkdir("/tmp/data", 0755))
 
 	// Download ZIP
 	resp, err := http.Get(url)
