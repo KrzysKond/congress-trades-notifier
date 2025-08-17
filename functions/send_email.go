@@ -42,7 +42,7 @@ func FetchRecipients(client S3API, bucketName, key string) ([]string, error) {
 }
 
 func SendEmails(client SESAPI, recipients []string) error {
-	dataDir := "./data"
+	dataDir := "/tmp/lambda"
 	files, err := os.ReadDir(dataDir)
 	if err != nil {
 		return err

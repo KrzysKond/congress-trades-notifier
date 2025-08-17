@@ -34,11 +34,11 @@ type FinancialDisclosure struct {
 
 func ZipExtractor() string {
 	const url = "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025FD.zip"
-	const zipPath = "/tmp/data/2025FD.zip"
-	const XMLPath = "/tmp/data/2025FD.xml"
+	const zipPath = "/tmp/lambda/2025FD.zip"
+	const XMLPath = "/tmp/lambda/2025FD.xml"
 
-	// Create /data folder
-	Check(os.MkdirAll("/tmp/data", 0755))
+	// Create /lambda folder
+	Check(os.MkdirAll("/tmp/lambda", 0755))
 
 	// Download ZIP
 	resp, err := http.Get(url)
@@ -120,7 +120,7 @@ func ProcessXML(xmlPath string) []string {
 
 func DownloadPDF(id string) string {
 	url := fmt.Sprintf("https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/%s.pdf", id)
-	PDFPath := fmt.Sprintf("/tmp/data/%d.pdf", id)
+	PDFPath := fmt.Sprintf("/tmp/lambda/%d.pdf", id)
 	resp, err := http.Get(url)
 	Check(err)
 	defer resp.Body.Close()
