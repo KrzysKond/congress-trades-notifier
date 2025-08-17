@@ -120,7 +120,7 @@ func ProcessXML(xmlPath string) []string {
 
 func DownloadPDF(id string) string {
 	url := fmt.Sprintf("https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/%s.pdf", id)
-	PDFPath := fmt.Sprintf("./data/%d.pdf", id)
+	PDFPath := fmt.Sprintf("/tmp/data/%d.pdf", id)
 	resp, err := http.Get(url)
 	Check(err)
 	defer resp.Body.Close()
