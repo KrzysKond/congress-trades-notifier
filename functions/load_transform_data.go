@@ -136,11 +136,15 @@ func DownloadPDF(id string) string {
 }
 
 func UploadPDFtoS3(client S3API, filePath string, bucketName string) error {
-	file, err := os.Open(filePath)
-	Check(err)
-	defer file.Close()
-
 	key := filepath.Base(filePath)
+	fmt.Printf("[DEBUG] UploadPDFtoS3 called with bucket=%s, key=%s\n", bucketName, key)
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Printf("[ERROR] Failed to open file %s: %v\n", filePath, err)
+		return err
+	}
+	defer file.Close()
 
 	_, err = client.PutObject(context.Background(), &s3.PutObjectInput{
 		Bucket: &bucketName,
@@ -148,7 +152,11 @@ func UploadPDFtoS3(client S3API, filePath string, bucketName string) error {
 		Body:   file,
 		ACL:    types.ObjectCannedACLPrivate,
 	})
-	Check(err)
+	if err != nil {
+		fmt.Printf("[ERROR] Failed to PutObject: %v\n", err)
+		return err
+	}
 
+	fmt.Printf("[DEBUG] Successfully uploaded %s to bucket %s\n", key, bucketName)
 	return nil
 }

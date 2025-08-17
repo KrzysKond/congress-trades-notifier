@@ -25,7 +25,7 @@ func handler(ctx context.Context) {
 		functions.UploadPDFtoS3(s3Client, pdfPath, bucketName)
 	}
 
-	recipients, err := functions.FetchRecipients(s3Client, bucketName, "recipients.txt")
+	recipients, err := functions.FetchRecipients(s3Client, bucketName, "receipients.txt")
 	functions.Check(err)
 	functions.SendEmails(sesClient, recipients)
 }

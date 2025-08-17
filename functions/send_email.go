@@ -17,11 +17,14 @@ import (
 )
 
 func FetchRecipients(client S3API, bucketName, key string) ([]string, error) {
+	fmt.Printf("[DEBUG] FetchRecipients called with bucket=%s, key=%s\n", bucketName, key)
+
 	resp, err := client.GetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: &bucketName,
 		Key:    &key,
 	})
 	if err != nil {
+		fmt.Printf("[ERROR] Failed to GetObject: %v\n", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -35,9 +38,11 @@ func FetchRecipients(client S3API, bucketName, key string) ([]string, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
+		fmt.Printf("[ERROR] Scanner error: %v\n", err)
 		return nil, err
 	}
 
+	fmt.Printf("[DEBUG] Successfully fetched %d receipients\n", len(recipients))
 	return recipients, nil
 }
 
@@ -55,10 +60,15 @@ func SendEmails(client SESAPI, recipients []string) error {
 		}
 	}
 
+	if len(pdfFiles) == 0 {
+		log.Println("[INFO] No PDF attachments found. Skipping email sending.")
+		return nil
+	}
+
 	for _, recipient := range recipients {
 		var emailBody bytes.Buffer
 		boundary := "MY-MULTIPART-BOUNDARY"
-
+		emailBody.WriteString("From: \"Praevo\" <projects@praevo.xyz>\r\n")
 		emailBody.WriteString(fmt.Sprintf("To: %s\r\n", recipient))
 		emailBody.WriteString("Subject: New trades by congressmen\r\n")
 		emailBody.WriteString("MIME-Version: 1.0\r\n")
@@ -88,9 +98,9 @@ func SendEmails(client SESAPI, recipients []string) error {
 			},
 		})
 		if err != nil {
-			log.Printf("Failed to send email to %s: %v", recipient, err)
+			log.Printf("[ERROR] Failed to send email to %s: %v", recipient, err)
 		} else {
-			log.Printf("Email sent to %s", recipient)
+			log.Printf("[INFO] Email successfully sent to %s", recipient)
 		}
 	}
 
