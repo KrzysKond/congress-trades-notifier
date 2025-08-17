@@ -22,7 +22,7 @@ resource "aws_lambda_function" "main_lambda" {
   role          = aws_iam_role.lambda_exec.arn
   runtime       = "provided.al2023"
   handler       = "lambda_function.lambda_handler"
-  filename      = "build/main.zip"
+  filename      = "../build/main.zip"
 
   reserved_concurrent_executions = 5
   timeout                        = 900
