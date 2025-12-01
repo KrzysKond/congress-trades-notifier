@@ -13,11 +13,6 @@ output "s3_bucket_arn" {
   value       = aws_s3_bucket.main.arn
 }
 
-output "vpc_id" {
-  description = "ID of the VPC"
-  value       = aws_vpc.main.id
-}
-
 output "ses_identity" {
   description = "SES email identity"
   value       = aws_ses_email_identity.identity.email

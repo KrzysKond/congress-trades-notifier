@@ -1,8 +1,5 @@
-
-terraform {
-  backend "s3" {
-    bucket = "cg-tf-state-2025"
-    key    = "terraform.tfstate"
-    region = "eu-north-1"
-  }
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "eu-north-1"
 }
