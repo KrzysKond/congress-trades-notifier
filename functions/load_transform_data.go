@@ -33,9 +33,13 @@ type FinancialDisclosure struct {
 }
 
 func ZipExtractor() string {
-	const url = "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025FD.zip"
-	const zipPath = "/tmp/lambda/2025FD.zip"
-	const XMLPath = "/tmp/lambda/2025FD.xml"
+	year := time.Now().Year()
+	url := fmt.Sprintf(
+		"https://disclosures-clerk.house.gov/public_disc/financial-pdfs/%dFD.zip",
+		year,
+	)
+	zipPath := fmt.Sprintf("/tmp/lambda/%dFD.zip", year)
+	XMLPath := fmt.Sprintf("/tmp/lambda/%dFD.xml", year)
 
 	// Create /lambda folder
 	Check(os.MkdirAll("/tmp/lambda", 0755))
